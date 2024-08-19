@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <title>猜拳</title>
+    <style>
+        body {
+            font-family: "Segoe UI";
+            text-align: center;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+        }
+        .button {
+            padding: 10px 20px;
+            font-size: 30px;
+            margin: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            color: white;
+        }
+        button:hover {
+            opacity: 0.7;
+            transform: scale(1.1);
+        }
+
+        button:active {
+            opacity: 0.7;
+            transform: scale(0.9);
+        }
+
+        .rock { background-color: #ff5722; }
+        .paper { background-color: #3f51b5; }
+        .scissors { background-color: #4caf50; }
+        .reset { background-color: #9e9e9e; color: black; }
+        
+        #result {
+            margin-top: 20px;
+            font-size: 20px;
+            font-weight: bold;
+            line-height: 100px;
+        }
+        .shape {
+            width: 10px;
+            height: 10px;
+            display: inline-block;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>猜拳</h1>
+    <button class="button rock fa-regular fa-hand-back-fist fa-5x" onclick="play('rock')">石頭</button>
+    <button class="button paper fa-regular fa-hand fa-5x" onclick="play('paper')">布</button>
+    <button class="button scissors fa-regular fa-hand-peace fa-5x" onclick="play('scissors')">剪刀</button>
+    <button class="button reset" onclick="reset()">重新開始</button>
+
+    <div id="result"></div>
+
+    <script>
+        let hasPlayed = false;
+        let intervalId;
+
+        function startRandomChoice() {
+            const choices = ['rock', 'paper', 'scissors'];
+            intervalId = setInterval(() => {
+                const computerChoice = choices[Math.floor(Math.random() * choices.length)];
+                document.getElementById('result').innerHTML = `電腦選擇: <div class="fa-regular fa-hand fa-5x ${getIconClass(computerChoice)}" style="background-color:transparent;"></div>`;
+            }, 100);
+        }
+
+        function getIconClass(choice) {
+            if (choice === 'rock') return 'fa-hand-back-fist';
+            if (choice === 'paper') return 'fa-hand';
+            if (choice === 'scissors') return 'fa-hand-peace';
+        }
+
+        function play(userChoice) {
+            if (hasPlayed) {
+                alert("請按下【重新開始】");
+                return;
+            }
+
+            clearInterval(intervalId);
+            let choices = ['rock', 'paper', 'scissors'];
+            let computerChoice = choices[Math.floor(Math.random() * choices.length)];
+            let result = '';
+
+            if (userChoice === computerChoice) {
+                result = "平手(´°_°`)";
+            } else if ((userChoice === 'rock' && computerChoice === 'scissors') ||
+                       (userChoice === 'scissors' && computerChoice === 'paper') ||
+                       (userChoice === 'paper' && computerChoice === 'rock')) {
+                result = "你贏了( ° ▽°)"
+            } else {
+                result = "你輸了(°﹃。)"
+            }
+
+            let userShape = '';
+            let computerShape = '';
+
+            if (userChoice === 'rock') {
+                userShape = '<div class="fa-regular fa-hand-back-fist fa-5x" style="background-color:transparent;"></div>';
+            } else if (userChoice === 'paper') {
+                userShape = '<div class="fa-regular fa-hand fa-5x" style="background-color:transparent;"></div>';
+            } else if (userChoice === 'scissors') {
+                userShape = '<div class="fa-regular fa-hand-peace fa-5x" style="background-color:transparent;"></div>';
+            }
+
+            if (computerChoice === 'rock') {
+                computerShape = '<div class="fa-regular fa-hand-back-fist fa-5x" style="background-color:transparent;"></div>';
+            } else if (computerChoice === 'paper') {
+                computerShape = '<div class="fa-regular fa-hand fa-5x" style="background-color:transparent;"></div>';
+            } else if (computerChoice === 'scissors') {
+                computerShape = '<div class="fa-regular fa-hand-peace fa-5x" style="background-color:transparent;"></div>';
+            }
+
+            document.getElementById('result').innerHTML = `
+                你選： ${userShape}<br>
+                對手選：  ${computerShape}<br>${result}`;
+                
+            hasPlayed = true;
+        }
+
+        function reset() {
+            document.getElementById('result').innerHTML = '';
+            hasPlayed = false;
+            startRandomChoice();
+        }
+
+        startRandomChoice();
+    </script>
+</body>
+</html>

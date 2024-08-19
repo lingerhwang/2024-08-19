@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" rel="stylesheet">
+    <title>color</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background-color: rgb(255, 246, 229);
+            width: 100%;
+            height: 100vh;
+            font-family: "RocknRoll One", sans-serif;
+            font-weight: 400;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .box-big {
+            background-color: white;
+            width: 500px;
+            height: 500px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+        }
+
+        .box {
+            width: 100%;
+            height: 100%;
+            font-size: 32px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            border: 5px solid white;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        .answer {
+            opacity: 0.5;
+        }
+
+        button {
+            margin: 5px;
+            font-size: 30px;
+            cursor: pointer;
+            background-color: rgb(104, 144, 190);
+            color: white;
+            padding: 15px 20px;
+            border: 0;
+            box-shadow: 1px 1px 3px 1px rgb(167, 171, 180);
+            font-family: "RocknRoll One", sans-serif;
+            font-weight: 400;
+            font-style: normal;
+            text-align: center;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            opacity: 0.7;
+            transform: scale(1.1);
+        }
+
+        button:active {
+            opacity: 0.7;
+            transform: scale(0.9);
+        }
+
+        /* #levelDisplay {
+            font-size: 20px;
+            margin-bottom: 10px;
+        } */
+
+        .homeP{
+            font-size: 70px;
+            font-weight: bold;
+            color:rgb(30, 106, 109); 
+        }
+
+        #clickCountDisplay {
+            font-size: 20px;
+            margin-left: 20px;
+        }
+
+        #timerDisplay {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="homePage">
+        <div class="homeP">COLOR</div>
+        <button id="startGameButton">開始遊戲</button>
+        <button id="continueButton" style="display: none;">繼續遊戲</button>
+    </div>
+
+    <div id="gamePage" style="display: none;">
+        <!-- <div id="levelDisplay">Level: 1</div> -->
+        <div id="clickCountDisplay">分數：0</div>
+        <div id="timerDisplay">剩餘時間：60秒</div>
+        <div class="box-big">
+            <div class="box"></div>
+        </div>
+        <button id="pauseButton">暫停</button>
+        <button id="endButton">結束遊戲</button>
+    </div>
+
+    <script>
+        let boxBig = document.querySelector('.box-big');
+        let level = 2;
+        let passCount = 0;
+        let size = 100 / level;
+        let gamePaused = false;
+        let clickCount = 0;
+        let timer;
+        let timeLeft = 60; 
+
+        function updateTimer() {
+            document.querySelector('#timerDisplay').textContent = `剩餘時間：${timeLeft}秒`;
+        }
+
+        function resetGame() {
+            level = 2; 
+            passCount = 0;
+            size = 100 / level;
+            clickCount = 0;
+            timeLeft = 60; 
+            // document.querySelector('#levelDisplay').textContent = `Level: ${level}`;
+            document.querySelector('#clickCountDisplay').textContent = `分數：${clickCount}`;
+            updateTimer(); 
+        }
+
+        function repeatDo() {
+            if (gamePaused) return;
+            boxBig.innerHTML = '';
+            for (let i = 0; i < level ** 2; i++) {
+                boxBig.innerHTML += `<div class="box"></div>`;
+            }
+            let boxAll = document.querySelectorAll('.box');
+            let color = `rgb(${getColor(1, 255)},${getColor(1, 255)},${getColor(1, 255)})`;
+            for (let i = 0; i < level ** 2; i++) {
+                let boxTemp = boxAll[i];
+                boxTemp.style.width = `${size}%`;
+                boxTemp.style.height = `${size}%`;
+                boxTemp.style.backgroundColor = color;
+            }
+            let answerIndex = Math.floor(Math.random() * (level ** 2));
+            let answerBox = boxAll[answerIndex];
+            answerBox.style.opacity = `${0.65 + level * 0.005 + passCount * 0.001}`;
+            answerBox.addEventListener('click', function () {
+                if (gamePaused) return;
+                passCount++;
+                clickCount++;
+                document.querySelector('#clickCountDisplay').textContent = `分數： ${clickCount}`;
+                if (passCount == level) {
+                    level++;
+                    passCount = 0;
+                    size = 100 / level;
+                    // document.querySelector('#levelDisplay').textContent = `Level: ${level}`;
+                }
+                if (level < 30) {
+                    repeatDo();
+                } else {
+                    alert(`遊戲結束　你獲得了：${clickCount}分`);
+                    resetGame();
+                }
+            });
+        }
+
+        function getColor(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function startTimer() {
+            timer = setInterval(() => {
+                if (!gamePaused) {
+                    timeLeft--;
+                    updateTimer();
+                    if (timeLeft < 0) {
+                        clearInterval(timer);
+                        alert(`時間到　遊戲結束　你獲得了：${clickCount}分`);
+                        document.querySelector('#gamePage').style.display = 'none';
+                        document.querySelector('#homePage').style.display = 'block';
+                        document.querySelector('#continueButton').style.display = 'none';
+                        document.querySelector('#startGameButton').style.display = 'inline';
+                        resetGame(); 
+                    }
+                }
+            }, 1000);
+        }
+
+        document.querySelector('#pauseButton').addEventListener('click', function () {
+            gamePaused = !gamePaused;
+            this.textContent = gamePaused ? '繼續' : '暫停';
+            if (gamePaused) {
+                clearInterval(timer); 
+                document.querySelector('#gamePage').style.display = 'none';
+                document.querySelector('#homePage').style.display = 'block';
+                document.querySelector('#startGameButton').style.display = 'none';
+                document.querySelector('#continueButton').style.display = 'inline';
+            } else {
+                document.querySelector('#homePage').style.display = 'none';
+                document.querySelector('#gamePage').style.display = 'block';
+                document.querySelector('#continueButton').style.display = 'none'; 
+                document.querySelector('#startGameButton').style.display = 'none';
+                startTimer();
+            }
+        });
+
+        document.querySelector('#endButton').addEventListener('click', function () {
+            clearInterval(timer); 
+            alert(`遊戲結束　你獲得了：${clickCount}分`);
+            document.querySelector('#gamePage').style.display = 'none';
+            document.querySelector('#homePage').style.display = 'block';
+            document.querySelector('#continueButton').style.display = 'none'; 
+            document.querySelector('#startGameButton').style.display = 'inline'; 
+            resetGame();
+        });
+
+        document.querySelector('#startGameButton').addEventListener('click', function () {
+            document.querySelector('#homePage').style.display = 'none';
+            document.querySelector('#gamePage').style.display = 'block';
+            repeatDo(); 
+            this.style.display = 'none'; 
+            startTimer(); 
+        });
+
+        document.querySelector('#continueButton').addEventListener('click', function () {
+            document.querySelector('#homePage').style.display = 'none';
+            document.querySelector('#gamePage').style.display = 'block';
+            gamePaused = false; 
+            document.querySelector('#pauseButton').textContent = '暫停';
+            startTimer(); 
+            this.style.display = 'none'; 
+        });
+    </script>
+</body>
+
+</html>
